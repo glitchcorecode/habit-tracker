@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HABIT TRACKER // SYS</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>HABITS & <br><span class="gradient-text">DAILY INTEL</span></h1>
+        <p class="subtitle">Твой персональный трекер продуктивности и распорядка дня.</p>
+    </header>
+
+    <div class="grid-layout">
+        <!-- ЛЕВАЯ КОЛОНКА: СЕГОДНЯ -->
+        <section class="card">
+            <div class="card-header">
+                <h2>СЕГОДНЯ</h2>
+                <span id="currentDate" class="date-badge">...</span>
+            </div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            
+            <form id="habitForm" class="input-group">
+                <input type="text" id="habitInput" placeholder="Новая привычка..." required autocomplete="off">
+                <button type="submit">ДОБАВИТЬ</button>
+            </form>
+
+            <ul id="habitList" class="habit-list"></ul>
+        </section>
+
+        <!-- ПРАВАЯ КОЛОНКА: АРХИВ -->
+        <section class="card">
+            <div class="card-header">
+                <h2>ИСТОРИЯ</h2>
+            </div>
+            <div id="historyList" class="history-list">
+                <!-- Сюда будут падать прошлые дни -->
+            </div>
+        </section>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>
