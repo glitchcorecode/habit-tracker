@@ -52,9 +52,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 updateUI();
             };
 
+            // Добавили ondblclick на span для редактирования
             li.innerHTML = `
                 <div class="indicator"></div>
-                <span class="habit-text">${habit.name}</span>
+                <span class="habit-text" ondblclick="editHabit(event, '${habit.id}')">${habit.name}</span>
                 <button class="delete-btn" onclick="deleteHabit('${habit.id}')">✕</button>
             `;
             habitList.appendChild(li);
@@ -82,11 +83,28 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Глобальная функция для удаления (чтобы работала из onclick в шаблоне)
+    // Глобальная функция для удаления
     window.deleteHabit = (id) => {
         state.habits = state.habits.filter(h => h.id !== id);
         saveState();
         updateUI();
+    };
+
+    // НОВАЯ ГЛОБАЛЬНАЯ ФУНКЦИЯ: Редактирование привычки
+    window.editHabit = (event, id) => {
+        event.stopPropagation(); // Останавливаем клик, чтобы не сработало зачеркивание
+        const habit = state.habits.find(h => h.id === id);
+        
+        if (habit) {
+            const newName = prompt('Редактировать привычку:', habit.name);
+            
+            // Проверяем, что пользователь не нажал "Отмена" (null) и ввел не пустую строку
+            if (newName !== null && newName.trim() !== '') {
+                habit.name = newName.trim();
+                saveState();
+                updateUI();
+            }
+        }
     };
 
     habitForm.addEventListener('submit', (e) => {
@@ -99,9 +117,6 @@ document.addEventListener('DOMContentLoaded', () => {
             updateUI();
         }
     });
-
-    // Для теста архива (чтобы ты сразу увидел, как это работает, можно раскомментировать строку ниже и перезагрузить страницу)
-    // state.lastDate = '2023-10-20'; state.habits = [{id:'1', name:'Чтение', done:true}]; saveState();
 
     updateUI();
 });
