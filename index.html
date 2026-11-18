@@ -9,11 +9,10 @@
 <body>
     <header>
         <h1>HABITS & <br><span class="gradient-text">DAILY INTEL</span></h1>
-        <p class="subtitle">Твой персональный трекер продуктивности и распорядка дня.</p>
+        <p class="subtitle">Твой персональный трекер привычек и ежедневных задач.</p>
     </header>
 
     <div class="grid-layout">
-        <!-- ЛЕВАЯ КОЛОНКА: СЕГОДНЯ -->
         <section class="card">
             <div class="card-header">
                 <h2>СЕГОДНЯ</h2>
@@ -24,6 +23,9 @@
                 <div class="progress-bar" id="progressBar"></div>
             </div>
             
+            <!-- НОВАЯ ФУНКЦИЯ: Поле поиска -->
+            <input type="text" id="searchInput" placeholder="Поиск по привычкам..." style="width: 100%; margin-bottom: 15px; background: #000; border: 1px solid var(--border); padding: 12px 16px; border-radius: 8px; color: white; outline: none;">
+
             <form id="habitForm" class="input-group">
                 <input type="text" id="habitInput" placeholder="Новая привычка..." required autocomplete="off">
                 <button type="submit">ДОБАВИТЬ</button>
@@ -32,13 +34,11 @@
             <ul id="habitList" class="habit-list"></ul>
         </section>
 
-        <!-- ПРАВАЯ КОЛОНКА: АРХИВ -->
         <section class="card">
             <div class="card-header">
                 <h2>ИСТОРИЯ</h2>
             </div>
             <div id="historyList" class="history-list">
-                <!-- Сюда будут падать прошлые дни -->
             </div>
         </section>
     </div>

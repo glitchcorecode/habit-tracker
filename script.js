@@ -5,6 +5,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const historyList = document.getElementById('historyList');
     const currentDateEl = document.getElementById('currentDate');
     const progressBar = document.getElementById('progressBar');
+    // Элемент поиска
+    const searchInput = document.getElementById('searchInput');
 
     const todayStr = new Date().toISOString().split('T')[0];
     currentDateEl.textContent = new Date().toLocaleDateString('ru-RU', { day: 'numeric', month: 'short' });
@@ -15,9 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
         history: []
     };
 
-    // Проверка наступления нового дня
     if (state.lastDate !== todayStr) {
-        // Если был день и были привычки — отправляем в историю
         if (state.habits.length > 0) {
             const completed = state.habits.filter(h => h.done).map(h => h.name);
             state.history.unshift({
@@ -27,7 +27,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 items: completed
             });
         }
-        // Сбрасываем на новый день
         state.habits = [];
         state.lastDate = todayStr;
         saveState();
@@ -37,36 +36,42 @@ document.addEventListener('DOMContentLoaded', () => {
         localStorage.setItem('habit_sys_data', JSON.stringify(state));
     }
 
+    // РЕФАКТОРИНГ: Вынесли создание элемента списка в отдельную функцию
+    function createHabitElement(habit) {
+        const li = document.createElement('li');
+        li.className = `habit-item ${habit.done ? 'done' : ''}`;
+        li.onclick = (e) => {
+            if(e.target.classList.contains('delete-btn')) return;
+            habit.done = !habit.done;
+            saveState();
+            updateUI();
+        };
+
+        li.innerHTML = `
+            <div class="indicator"></div>
+            <span class="habit-text" ondblclick="editHabit(event, '${habit.id}')">${habit.name}</span>
+            <button class="delete-btn" onclick="deleteHabit('${habit.id}')">✕</button>
+        `;
+        return li;
+    }
+
     function updateUI() {
-        // Рендер сегодня
         habitList.innerHTML = '';
-        const sorted = [...state.habits].sort((a, b) => a.done - b.done);
+        
+        // Логика поиска (фильтрации)
+        const searchTerm = searchInput.value.toLowerCase();
+        const filtered = state.habits.filter(h => h.name.toLowerCase().includes(searchTerm));
+        
+        const sorted = [...filtered].sort((a, b) => a.done - b.done);
         
         sorted.forEach(habit => {
-            const li = document.createElement('li');
-            li.className = `habit-item ${habit.done ? 'done' : ''}`;
-            li.onclick = (e) => {
-                if(e.target.classList.contains('delete-btn')) return;
-                habit.done = !habit.done;
-                saveState();
-                updateUI();
-            };
-
-            // Добавили ondblclick на span для редактирования
-            li.innerHTML = `
-                <div class="indicator"></div>
-                <span class="habit-text" ondblclick="editHabit(event, '${habit.id}')">${habit.name}</span>
-                <button class="delete-btn" onclick="deleteHabit('${habit.id}')">✕</button>
-            `;
-            habitList.appendChild(li);
+            habitList.appendChild(createHabitElement(habit));
         });
 
-        // Прогресс
         const total = state.habits.length;
         const done = state.habits.filter(h => h.done).length;
         progressBar.style.width = total === 0 ? '0%' : `${(done / total) * 100}%`;
 
-        // Рендер истории
         historyList.innerHTML = '';
         if (state.history.length === 0) {
             historyList.innerHTML = '<div class="history-text">Архив пуст. Выполняй привычки, и завтра здесь появится отчет.</div>';
@@ -83,22 +88,18 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Глобальная функция для удаления
     window.deleteHabit = (id) => {
         state.habits = state.habits.filter(h => h.id !== id);
         saveState();
         updateUI();
     };
 
-    // НОВАЯ ГЛОБАЛЬНАЯ ФУНКЦИЯ: Редактирование привычки
     window.editHabit = (event, id) => {
-        event.stopPropagation(); // Останавливаем клик, чтобы не сработало зачеркивание
+        event.stopPropagation();
         const habit = state.habits.find(h => h.id === id);
         
         if (habit) {
             const newName = prompt('Редактировать привычку:', habit.name);
-            
-            // Проверяем, что пользователь не нажал "Отмена" (null) и ввел не пустую строку
             if (newName !== null && newName.trim() !== '') {
                 habit.name = newName.trim();
                 saveState();
@@ -117,6 +118,8 @@ document.addEventListener('DOMContentLoaded', () => {
             updateUI();
         }
     });
+
+    searchInput.addEventListener('input', updateUI);
 
     updateUI();
 });
